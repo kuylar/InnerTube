@@ -248,9 +248,9 @@ public class PlayerTests
 		sb.AppendLine("Id: " + next.CurrentVideoEndpoint.WatchEndpoint.VideoId);
 		sb.AppendLine("Title: " + Utils.ReadRuns(primary.Title));
 		sb.AppendLine("Channel: " +
-		              $"[{secondary.Owner.VideoOwnerRenderer.NavigationEndpoint.BrowseEndpoint.BrowseId}]" +
+		              $"[{secondary.Owner.VideoOwnerRenderer.NavigationEndpoint.BrowseEndpoint.BrowseId}] " +
 		              Utils.ReadRuns(secondary.Owner.VideoOwnerRenderer.Title) +
-		              $"({Utils.ReadRuns(secondary.Owner.VideoOwnerRenderer.SubscriberCountText)})");
+		              $" ({Utils.ReadRuns(secondary.Owner.VideoOwnerRenderer.SubscriberCountText)})");
 		sb.AppendLine("DateText: " + Utils.ReadRuns(primary.RelativeDateText));
 		sb.AppendLine("ViewCount: " +
 		              (primary.ViewCount.VideoViewCountRenderer.HasOriginalViewCount &&
@@ -275,10 +275,7 @@ public class PlayerTests
 				.AppendLine($"  Thumbnail: [{avatar.Width}x{avatar.Height}] {avatar.Url}")
 				.AppendLine("  Content: " + Utils.ReadRuns(teaserComment.TeaserContent));
 		}
-
-		Assert.Pass(sb.ToString());
 		/*
-
 		sb.AppendLine("\n== CHAPTERS");
 		if (next.Chapters != null)
 		{
@@ -289,16 +286,12 @@ public class PlayerTests
 		{
 			sb.AppendLine("No chapters available");
 		}
-
+		*/
 		sb.AppendLine("\n== RECOMMENDED");
-		foreach (IRenderer renderer in next.Recommended)
-		{
-			sb.AppendLine("->\t" + string.Join("\n\t",
-				(renderer.ToString() ?? "UNKNOWN RENDERER " + renderer.Type).Split("\n")));
-		}
+		foreach (RendererWrapper? renderer in next.Contents.TwoColumnWatchNextResults.SecondaryResults.SecondaryResults.Results)
+			sb.AppendLine("->\t" + string.Join("\n\t", Utils.SerializeRenderer(renderer).Split("\n")));
 
 		Assert.Pass(sb.ToString());
-		*/
 	}
 
 	[TestCase("3BR7-AzE2dQ", "OLAK5uy_l6pEkEJgy577R-aDlJ3Gkp5rmlgIOu8bc", null, null)]
