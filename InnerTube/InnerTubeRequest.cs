@@ -24,7 +24,7 @@ internal class InnerTubeRequest
 				clientContext.Add("browserName", "Safari");
 				clientContext.Add("browserVersion", "15.4");
 				clientContext.Add("clientName", "WEB");
-				clientContext.Add("clientVersion", "2.20230419.01.00");
+				clientContext.Add("clientVersion", "2.20240304.00.00");
 				clientContext.Add("deviceMake", "Apple");
 				clientContext.Add("osName", "Macintosh");
 				clientContext.Add("osVersion", "10_15_7");
@@ -35,7 +35,7 @@ internal class InnerTubeRequest
 				break;
 			case RequestClient.ANDROID:
 				clientContext.Add("clientName", "ANDROID");
-				clientContext.Add("clientVersion", "17.31.35");
+				clientContext.Add("clientVersion", "19.09.4");
 				clientContext.Add("osName", "Android");
 				clientContext.Add("osVersion", "11");
 				clientContext.Add("androidSdkVersion", 30);
@@ -44,7 +44,7 @@ internal class InnerTubeRequest
 				break;
 			case RequestClient.IOS:
 				clientContext.Add("clientName", "IOS");
-				clientContext.Add("clientVersion", "18.15.1");
+				clientContext.Add("clientVersion", "19.09.4");
 				clientContext.Add("deviceMake", "Apple");
 				clientContext.Add("deviceModel", "iPhone14,5");
 				clientContext.Add("osName", "iOS");
