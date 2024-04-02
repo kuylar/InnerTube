@@ -22,7 +22,7 @@ public class Format
 	public int? AudioChannels { get; }
 	public AudioTrack? AudioTrack { get; }
 
-	public Format(JToken jToken)
+	public Format(JToken jToken, JsUtils jsUtils)
 	{
 		Itag = jToken["itag"]!.ToString();
 		Bitrate = jToken["bitrate"]?.ToObject<int>() ?? jToken["averageBitrate"]?.ToObject<int>() ?? 0;
@@ -33,7 +33,7 @@ public class Format
 		InitRange = new DashRange(jToken["initRange"]!);
 		IndexRange = new DashRange(jToken["indexRange"]!);
 		MimeType = jToken["mimeType"]!.ToString();
-		Url = new Uri(jToken["url"]!.ToString());
+		Url = new Uri(jsUtils.DescrambleUrl(jToken.ToObject<JObject>()));
 		Quality = jToken["quality"]!.ToString();
 		QualityLabel = jToken["qualityLabel"]?.ToString();
 		AudioQuality = jToken["audioQuality"]?.ToString();

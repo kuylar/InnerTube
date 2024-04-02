@@ -15,44 +15,53 @@ public class InnerTubePlayer
 	public string? HlsManifestUrl { get; }
 	public string? DashManifestUrl { get; }
 
-	public InnerTubePlayer(JObject playerResponse, JObject metadataResponse)
+	public InnerTubePlayer(JObject playerResponse, JObject? hlsResponse, JsUtils jsUtils)
 	{
 		Details = new VideoDetails
 		{
-			Id = metadataResponse.GetFromJsonPath<string>("videoDetails.videoId")!,
-			Title = metadataResponse.GetFromJsonPath<string>("videoDetails.title")!,
+			Id = playerResponse.GetFromJsonPath<string>("videoDetails.videoId")!,
+			Title = playerResponse.GetFromJsonPath<string>("videoDetails.title")!,
 			Author = new Channel
 			{
-				Id = metadataResponse.GetFromJsonPath<string>("videoDetails.channelId")!,
-				Title = metadataResponse.GetFromJsonPath<string>("videoDetails.author")!
+				Id = playerResponse.GetFromJsonPath<string>("videoDetails.channelId")!,
+				Title = playerResponse.GetFromJsonPath<string>("videoDetails.author")!
 			},
-			Keywords = metadataResponse.GetFromJsonPath<string[]>("videoDetails.keywords") ?? Array.Empty<string>(),
-			ShortDescription = metadataResponse.GetFromJsonPath<string>("videoDetails.shortDescription")!,
-			Category = metadataResponse.GetFromJsonPath<string>("videoDetails.category")!,
-			UploadDate = DateTimeOffset.Parse(metadataResponse.GetFromJsonPath<string>("microformat.playerMicroformatRenderer.uploadDate")!, CultureInfo.InvariantCulture),
-			PublishDate = DateTimeOffset.Parse(metadataResponse.GetFromJsonPath<string>("microformat.playerMicroformatRenderer.publishDate")!, CultureInfo.InvariantCulture),
+			Keywords = playerResponse.GetFromJsonPath<string[]>("videoDetails.keywords") ?? Array.Empty<string>(),
+			ShortDescription = playerResponse.GetFromJsonPath<string>("videoDetails.shortDescription")!,
+			Category = playerResponse.GetFromJsonPath<string>("videoDetails.category")!,
+			UploadDate =
+				DateTimeOffset.Parse(
+					playerResponse.GetFromJsonPath<string>("microformat.playerMicroformatRenderer.uploadDate")!,
+					CultureInfo.InvariantCulture),
+			PublishDate =
+				DateTimeOffset.Parse(
+					playerResponse.GetFromJsonPath<string>("microformat.playerMicroformatRenderer.publishDate")!,
+					CultureInfo.InvariantCulture),
 			Length = TimeSpan.FromSeconds(
-				long.Parse(metadataResponse.GetFromJsonPath<string>("videoDetails.lengthSeconds")!)),
-			IsLive = metadataResponse.GetFromJsonPath<bool>("videoDetails.isLiveContent")!,
-			AllowRatings = metadataResponse.GetFromJsonPath<bool>("videoDetails.allowRatings"),
-			IsFamilySafe = metadataResponse.GetFromJsonPath<bool>("microformat.playerMicroformatRenderer.isFamilySafe")!,
-			Thumbnails = Utils.GetThumbnails(metadataResponse.GetFromJsonPath<JArray>("microformat.playerMicroformatRenderer.thumbnail.thumbnails"))
+				long.Parse(playerResponse.GetFromJsonPath<string>("videoDetails.lengthSeconds")!)),
+			IsLive = playerResponse.GetFromJsonPath<bool>("videoDetails.isLiveContent")!,
+			AllowRatings = playerResponse.GetFromJsonPath<bool>("videoDetails.allowRatings"),
+			IsFamilySafe = playerResponse.GetFromJsonPath<bool>("microformat.playerMicroformatRenderer.isFamilySafe")!,
+			Thumbnails =
+				Utils.GetThumbnails(
+					playerResponse.GetFromJsonPath<JArray>(
+						"microformat.playerMicroformatRenderer.thumbnail.thumbnails"))
 		};
 		Endscreen = new VideoEndscreen
 		{
-			Items = metadataResponse.GetFromJsonPath<JArray>("endscreen.endscreenRenderer.elements")
+			Items = playerResponse.GetFromJsonPath<JArray>("endscreen.endscreenRenderer.elements")
 				?.Select(x => new EndScreenItem(x["endscreenElementRenderer"]!)) ?? Array.Empty<EndScreenItem>(),
-			StartMs = long.Parse(metadataResponse.GetFromJsonPath<string>("endscreen.endscreenRenderer.startMs") ?? "0")
+			StartMs = long.Parse(playerResponse.GetFromJsonPath<string>("endscreen.endscreenRenderer.startMs") ?? "0")
 		};
 		Storyboard = new VideoStoryboard
 		{
 			RecommendedLevel =
-				metadataResponse.GetFromJsonPath<int>("storyboards.playerStoryboardSpecRenderer.recommendedLevel"),
+				playerResponse.GetFromJsonPath<int>("storyboards.playerStoryboardSpecRenderer.recommendedLevel"),
 			Levels = Utils.GetLevelsFromStoryboardSpec(
-				metadataResponse.GetFromJsonPath<string>("storyboards.playerStoryboardSpecRenderer.spec"),
-				long.Parse(metadataResponse.GetFromJsonPath<string>("videoDetails.lengthSeconds")!))
+				playerResponse.GetFromJsonPath<string>("storyboards.playerStoryboardSpecRenderer.spec"),
+				long.Parse(playerResponse.GetFromJsonPath<string>("videoDetails.lengthSeconds")!))
 		};
-		Captions = metadataResponse.GetFromJsonPath<JArray>("captions.playerCaptionsTracklistRenderer.captionTracks")?
+		Captions = playerResponse.GetFromJsonPath<JArray>("captions.playerCaptionsTracklistRenderer.captionTracks")?
 			.Select(x => new VideoCaption
 			{
 				VssId = x["vssId"]?.ToString() ?? x["languageCode"]!.ToString(),
@@ -60,14 +69,17 @@ public class InnerTubePlayer
 				Label = Utils.ReadText(x["name"]!.ToObject<JObject>()!),
 				BaseUrl = new Uri(x["baseUrl"]!.ToString())
 			}) ?? Array.Empty<VideoCaption>();
-		Formats = playerResponse.GetFromJsonPath<JArray>("streamingData.formats")?.Select(x => new Format(x)) ??
+		Formats = playerResponse.GetFromJsonPath<JArray>("streamingData.formats")?.Select(x => new Format(x, jsUtils)) ??
 		          Array.Empty<Format>();
 		AdaptiveFormats =
-			playerResponse.GetFromJsonPath<JArray>("streamingData.adaptiveFormats")?.Select(x => new Format(x)) ??
+			playerResponse.GetFromJsonPath<JArray>("streamingData.adaptiveFormats")?.Select(x => new Format(x, jsUtils)) ??
 			Array.Empty<Format>();
 		ExpiresInSeconds = playerResponse["streamingData"]?["expiresInSeconds"]?.ToObject<int>() ?? 0;
-		HlsManifestUrl = playerResponse["streamingData"]?["hlsManifestUrl"]?.ToString();
-		DashManifestUrl = playerResponse["streamingData"]?["dashManifestUrl"]?.ToString();
+		// for live videos, the web client might get the hls/dash url
+		HlsManifestUrl = hlsResponse?["streamingData"]?["hlsManifestUrl"]?.ToString() ??
+		                 playerResponse?["streamingData"]?["hlsManifestUrl"]?.ToString();
+		DashManifestUrl = hlsResponse?["streamingData"]?["dashManifestUrl"]?.ToString() ??
+		                  playerResponse?["streamingData"]?["dashManifestUrl"]?.ToString();
 	}
 
 	public class VideoDetails

@@ -18,6 +18,7 @@ public class InnerTube
 	internal readonly string ApiKey;
 	internal readonly InnerTubeAuthorization? Authorization;
 	private InnerTubeLocals? _cachedLocals;
+	private JsUtils jsUtils = new();
 
 	/// <summary>
 	/// Initializes a new instance of InnerTube client.
@@ -78,42 +79,53 @@ public class InnerTube
 	/// </summary>
 	/// <param name="videoId">ID of the video</param>
 	/// <param name="contentCheckOk">Set to true if you want to skip the content warnings (suicide, self-harm etc.)</param>
-	/// <param name="includeHls">
-	/// Set to true if you need HLS streams. Note that HLS streams are always sent for live videos and
-	/// for non-live videos setting this to true will not return formats larger than 1080p <br></br>
-	/// If this is set to true, Formats will be empty
-	/// </param>
+	/// <param name="includeHls">Set to true if you need HLS streams on non-live videos</param>
 	/// <param name="language">Language of the content</param>
 	/// <param name="region">Region of the content</param>
 	public async Task<InnerTubePlayer> GetPlayerAsync(string videoId, bool contentCheckOk = false,
-		bool includeHls = false,
-		string language = "en", string region = "US")
+		bool includeHls = false, string language = "en", string region = "US")
 	{
-		string cacheId = $"{videoId}_{(includeHls ? "hls" : "dash")}({language}_{region})";
+		// i genuinely hate this methods current state
+		string cacheId = $"{videoId}_{language}-{region}{(includeHls ? "_hls" : "")}";
+
+		await jsUtils.LoadLatestJs(videoId);
 
 		if (PlayerCache.TryGetValue(cacheId, out InnerTubePlayer cachedPlayer)) return cachedPlayer;
 
-		Task[] tasks = 
+		Task[] tasks;
+		if (includeHls)
 		{
-			GetPlayerObjectAsync(videoId, contentCheckOk, language, region, RequestClient.WEB),
-			GetPlayerObjectAsync(videoId, contentCheckOk, language, region,
-				includeHls ? RequestClient.IOS : RequestClient.ANDROID)
-		};
+			tasks = new Task[]
+			{
+				GetPlayerObjectAsync(videoId, contentCheckOk, jsUtils.SignatureTimestamp, language, region,
+					RequestClient.WEB),
+				GetPlayerObjectAsync(videoId, contentCheckOk, null, language, region,
+					RequestClient.IOS)
+			};
+		}
+		else
+		{
+			tasks = new Task[]
+			{
+				GetPlayerObjectAsync(videoId, contentCheckOk, jsUtils.SignatureTimestamp, language, region,
+					RequestClient.WEB)
+			};
+		}
 
 		Task.WaitAll(tasks);
 
 		JObject[] responses = tasks.Select(x => ((Task<JObject>)x).Result).ToArray();
-		
-		string playabilityStatus = responses[1].GetFromJsonPath<string>("playabilityStatus.status")!;
+
+		string playabilityStatus = responses[0].GetFromJsonPath<string>("playabilityStatus.status")!;
 		if (playabilityStatus != "OK")
 			throw new PlayerException(playabilityStatus,
-				responses[1].GetFromJsonPath<string>("playabilityStatus.reason")!,
-				responses[1].GetFromJsonPath<string>("playabilityStatus.reasonTitle") ??
+				responses[0].GetFromJsonPath<string>("playabilityStatus.reason")!,
+				responses[0].GetFromJsonPath<string>("playabilityStatus.reasonTitle") ??
 				Utils.ReadText(
-					responses[1].GetFromJsonPath<JObject>(
+					responses[0].GetFromJsonPath<JObject>(
 						"playabilityStatus.errorScreen.playerErrorMessageRenderer.subreason")));
 
-		InnerTubePlayer player = new(responses[1], responses[0]);
+		InnerTubePlayer player = new(responses[0], includeHls ? responses[1] : null, jsUtils);
 		PlayerCache.Set(cacheId, player, new MemoryCacheEntryOptions
 		{
 			Size = 1,
@@ -129,7 +141,8 @@ public class InnerTube
 	// data at the same time i decided to just do the request
 	// twice, one WEB and one ANDROID. if someone finds a protobuf
 	// string that returns all those on the android client pls pr <3
-	private async Task<JObject> GetPlayerObjectAsync(string videoId, bool contentCheckOk, string language,
+	private async Task<JObject> GetPlayerObjectAsync(string videoId, bool contentCheckOk, int? signatureTimestamp,
+		string language,
 		string region, RequestClient client)
 	{
 		InnerTubeRequest postData = new InnerTubeRequest()
@@ -137,8 +150,22 @@ public class InnerTube
 			.AddValue("contentCheckOk", contentCheckOk)
 			.AddValue("racyCheckOk", contentCheckOk);
 
-		if (client == RequestClient.ANDROID)
-			postData.AddValue("params", "CgIQBg");
+		switch (client)
+		{
+			case RequestClient.ANDROID:
+				postData.AddValue("params", "CgIQBg");
+				break;
+			case RequestClient.WEB:
+				postData.AddValue("playbackContext", new Dictionary<string, object>
+				{
+					["contentPlaybackContext"] = new Dictionary<string, object>
+					{
+						["signatureTimestamp"] = signatureTimestamp!,
+						["html5Preference"] = "HTML5_PREF_WANTS"
+					}
+				});
+				break;
+		}
 
 		return await MakeRequest(client, "player", postData,
 			language, region, true);
@@ -387,7 +414,7 @@ public class InnerTube
 		InnerTubeRequest postData = new InnerTubeRequest()
 			.AddValue("continuation", Utils.PackPlaylistContinuation(
 				playlistId.StartsWith("VL") ? playlistId :
-				playlistId.StartsWith("OL") ? playlistId : 
+				playlistId.StartsWith("OL") ? playlistId :
 				"VL" + playlistId, skipAmount));
 
 		JObject browseResponse = await MakeRequest(RequestClient.WEB, "browse", postData, language, region);

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 using InnerTube.Exceptions;
 using InnerTube.Renderers;
@@ -12,6 +13,8 @@ public class PlayerTests
 	public void Setup()
 	{
 		_innerTube = new InnerTube();
+		// Testing if JsUtils caching works. Load the JS before the tests are ran
+		_innerTube.GetPlayerAsync("BaW_jenozKc").Wait();
 	}
 
 	[TestCase("BaW_jenozKc", true, true, Description = "Load a video with an HLS manifest")]
@@ -19,9 +22,12 @@ public class PlayerTests
 	[TestCase("jfKfPfyJRdk", true, false, Description = "Load a livestream")]
 	[TestCase("9gIXoaB-Jik", true, false, Description = "Video with WEBSITE endscreen item")]
 	[TestCase("4ZX9T0kWb4Y", true, false, Description = "Video with multiple audio tracks")]
+	[TestCase("Atvsg_zogxo", true, false, Description = "Copyrighted video. I think")]
 	public async Task GetPlayer(string videoId, bool contentCheckOk, bool includeHls)
 	{
+		Stopwatch sp = Stopwatch.StartNew();
 		InnerTubePlayer player = await _innerTube.GetPlayerAsync(videoId, contentCheckOk, includeHls);
+		sp.Stop();
 		StringBuilder sb = new();
 
 		sb.AppendLine("== DETAILS")
