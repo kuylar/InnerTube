@@ -1093,7 +1093,7 @@ public static partial class Utils
 			_ => new RendererContainer
 			{
 				Type = "unknown",
-				OriginalType = renderer.GetType().Name,
+				OriginalType = renderer.RendererCase.ToString(),
 				Data = new UnknownRendererData
 				{
 					Json = JsonSerializer.Serialize(renderer, new JsonSerializerOptions
