@@ -44,7 +44,7 @@ public class Channel(
 		try
 		{
 			return new Channel(id: bylineText.Runs[0].NavigationEndpoint.BrowseEndpoint.BrowseId,
-				title: Utils.ReadRuns(bylineText),
+				title: bylineText.Runs[0].Text,
 				handle: TryGetHandle(bylineText.Runs[0].NavigationEndpoint.BrowseEndpoint.CanonicalBaseUrl),
 				avatar: avatar?.Thumbnails_.ToArray(),
 				subscribersText: null,
