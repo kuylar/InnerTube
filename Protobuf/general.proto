@@ -694,8 +694,11 @@ message GridRenderer {
 
 message ShelfRenderer {
   Text title = 1;
+  optional Endpoint endpoint = 3;
   RendererWrapper content = 5;
+  optional Text subtitle = 9;
   bytes trackingParams = 15;
+  optional RendererWrapper playAllButton = 31;
 }
 
 message TwoColumnBrowseResultsRenderer {

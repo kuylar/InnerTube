@@ -1004,7 +1004,11 @@ public static partial class Utils
 						RendererWrapper.RendererOneofCase.VerticalListRenderer => "vertical",
 						RendererWrapper.RendererOneofCase.HorizontalListRenderer => "horizontal",
 						_ => "vertical"
-					}
+					},
+					Title = ReadRuns(renderer.ShelfRenderer.Title),
+					Subtitle = ReadRuns(renderer.ShelfRenderer.Subtitle),
+					// TODO: Destination = Utils.ParseEndpoint(),
+					ShownItemCount = renderer.ShelfRenderer.Content.VerticalListRenderer?.CollapsedItemCount
 				}
 			},
 			RendererWrapper.RendererOneofCase.ReelShelfRenderer => new RendererContainer
@@ -1014,7 +1018,8 @@ public static partial class Utils
 				Data = new ContainerRendererData
 				{
 					Items = ConvertRenderers(renderer.ReelShelfRenderer.Items),
-					Style = "shelf;reel"
+					Style = "shelf;reel",
+					Title = ReadRuns(renderer.ReelShelfRenderer.Title)
 				}
 			},
 			RendererWrapper.RendererOneofCase.SearchPyvRenderer => new RendererContainer
