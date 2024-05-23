@@ -818,7 +818,11 @@ public static partial class Utils
 					VideoCountText = ReadRuns(renderer.PlaylistRenderer.VideoCountText),
 					SidebarThumbnails = renderer.PlaylistRenderer.Thumbnails.ToArray()[1..].Select(x => x.Thumbnails_.ToArray()).ToArray(),
 					Author = Channel.From(renderer.PlaylistRenderer.ShortBylineText,
-						renderer.PlaylistRenderer.OwnerBadges.Select(x => x.MetadataBadgeRenderer).ToArray())
+						renderer.PlaylistRenderer.OwnerBadges.Select(x => x.MetadataBadgeRenderer).ToArray()),
+					ChildVideos = ConvertRenderers(renderer.PlaylistRenderer.Videos),
+					FirstVideoId = renderer.PlaylistRenderer.NavigationEndpoint.WatchEndpoint?.VideoId ??
+					               renderer.PlaylistRenderer.NavigationEndpoint.ReelWatchEndpoint?.VideoId ??
+					               renderer.PlaylistRenderer.Videos.FirstOrDefault()?.ChildVideoRenderer.VideoId
 				}
 			},
 			RendererWrapper.RendererOneofCase.GridPlaylistRenderer => new RendererContainer
@@ -832,7 +836,57 @@ public static partial class Utils
 					Title = ReadRuns(renderer.GridPlaylistRenderer.Title),
 					VideoCountText = ReadRuns(renderer.GridPlaylistRenderer.VideoCountText),
 					SidebarThumbnails = renderer.GridPlaylistRenderer.SidebarThumbnails.Select(x => x.Thumbnails_.ToArray()).ToArray(),
-					Author = null
+					Author = null,
+					FirstVideoId = renderer.GridPlaylistRenderer.NavigationEndpoint.WatchEndpoint?.VideoId ??
+					               renderer.GridPlaylistRenderer.NavigationEndpoint.ReelWatchEndpoint?.VideoId
+				}
+			},
+			RendererWrapper.RendererOneofCase.CompactPlaylistRenderer => new RendererContainer
+			{
+				Type = "playlist",
+				OriginalType = "compactPlaylistRenderer",
+				Data = new PlaylistRendererData
+				{
+					PlaylistId = renderer.CompactPlaylistRenderer.PlaylistId,
+					Thumbnails = renderer.CompactPlaylistRenderer.Thumbnail.Thumbnails_.ToArray(),
+					Title = ReadRuns(renderer.CompactPlaylistRenderer.Title),
+					VideoCountText = ReadRuns(renderer.CompactPlaylistRenderer.VideoCountText),
+					SidebarThumbnails = renderer.CompactPlaylistRenderer.SidebarThumbnails.Select(x => x.Thumbnails_.ToArray()).ToArray(),
+					Author = Channel.From(renderer.CompactPlaylistRenderer.ShortBylineText),
+					FirstVideoId = renderer.CompactPlaylistRenderer.NavigationEndpoint.WatchEndpoint?.VideoId ??
+					               renderer.CompactPlaylistRenderer.NavigationEndpoint.ReelWatchEndpoint?.VideoId
+				}
+			},
+			RendererWrapper.RendererOneofCase.RadioRenderer => new RendererContainer
+			{
+				Type = "playlist",
+				OriginalType = "radioRenderer",
+				Data = new PlaylistRendererData
+				{
+					PlaylistId = renderer.RadioRenderer.PlaylistId,
+					Thumbnails = renderer.RadioRenderer.Thumbnails[0].Thumbnails_.ToArray(),
+					Title = ReadRuns(renderer.RadioRenderer.Title),
+					VideoCountText = ReadRuns(renderer.RadioRenderer.VideoCountText),
+					SidebarThumbnails = null,
+					Author = Channel.From(renderer.RadioRenderer.LongBylineText),
+					FirstVideoId = renderer.RadioRenderer.NavigationEndpoint.WatchEndpoint?.VideoId ??
+					               renderer.RadioRenderer.NavigationEndpoint.ReelWatchEndpoint?.VideoId
+				}
+			},
+			RendererWrapper.RendererOneofCase.CompactRadioRenderer => new RendererContainer
+			{
+				Type = "playlist",
+				OriginalType = "compactRadioRenderer",
+				Data = new PlaylistRendererData
+				{
+					PlaylistId = renderer.CompactRadioRenderer.PlaylistId,
+					Thumbnails = renderer.CompactRadioRenderer.Thumbnail.Thumbnails_.ToArray(),
+					Title = ReadRuns(renderer.CompactRadioRenderer.Title),
+					VideoCountText = ReadRuns(renderer.CompactRadioRenderer.VideoCountText),
+					SidebarThumbnails = null,
+					Author = Channel.From(renderer.CompactRadioRenderer.LongBylineText),
+					FirstVideoId = renderer.CompactRadioRenderer.NavigationEndpoint.WatchEndpoint?.VideoId ??
+					               renderer.CompactRadioRenderer.NavigationEndpoint.ReelWatchEndpoint?.VideoId
 				}
 			},
 			RendererWrapper.RendererOneofCase.ContinuationItemRenderer => new RendererContainer
@@ -872,6 +926,24 @@ public static partial class Utils
 						.CommentActionButtonsRenderer.ReplyButton.ButtonViewModel.Title),
 					Attachment = renderer.BackstagePostRenderer.BackstageAttachment != null
 						? ConvertRenderer(renderer.BackstagePostRenderer.BackstageAttachment)
+						: null
+				}
+			},
+			RendererWrapper.RendererOneofCase.PostRenderer => new RendererContainer
+			{
+				Type = "communityPost",
+				OriginalType = "postRenderer",
+				Data = new CommunityPostRendererData
+				{
+					PostId = renderer.PostRenderer.PostId,
+					Author = Channel.From(renderer.PostRenderer.AuthorText,
+						avatar: renderer.PostRenderer.AuthorThumbnail)!,
+					Content = ReadRuns(renderer.PostRenderer.ContentText),
+					LikeCountText = ReadRuns(renderer.PostRenderer.VoteCount),
+					CommentsCountText = ReadRuns(renderer.PostRenderer.ActionButtons
+						.CommentActionButtonsRenderer.ReplyButton.ButtonViewModel.Title),
+					Attachment = renderer.PostRenderer.BackstageAttachment != null
+						? ConvertRenderer(renderer.PostRenderer.BackstageAttachment)
 						: null
 				}
 			},
