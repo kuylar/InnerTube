@@ -589,7 +589,7 @@ message CompactPlaylistRenderer {
   Endpoint navigationEndpoint = 6;
   Text videoCountShortText = 9;
   bytes trackingParams = 12;
-  Thumbnails sidebarThumbnails = 13;
+  repeated Thumbnails sidebarThumbnails = 13;
   Text thumbnailText = 15;
   repeated RendererWrapper badges = 16;
   string shareUrl = 19;
