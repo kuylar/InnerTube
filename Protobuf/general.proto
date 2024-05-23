@@ -225,6 +225,12 @@ message Context {
   optional Command commandContext = 3;
 }
 
+message UpcomingEventData {
+  int64 startTime = 1;
+  bool isReminderSet = 2;
+  Text upcomingEventText = 3;
+}
+
 // ===============================================================
 // ==================    RENDERERS    ============================
 // ===============================================================
@@ -492,6 +498,7 @@ message VideoRenderer {
   repeated RendererWrapper badges = 10;
   repeated RendererWrapper ownerBadges = 11;
   Text ownerText = 15;
+  optional UpcomingEventData upcomingEventData = 17;
   Text shortBylineText = 18;
   bytes trackingParams = 21;
   bool showActionMenu = 25;
@@ -530,6 +537,7 @@ message CompactVideoRenderer {
   optional Text lengthText = 7;
   Endpoint navigationEndpoint = 8;
   Text shortBylineText = 10;
+  optional UpcomingEventData upcomingEventData = 12;
   repeated RendererWrapper badges = 13;
   Thumbnails channelThumbnail = 14;
   repeated RendererWrapper ownerBadges = 15;
@@ -942,6 +950,7 @@ message GridVideoRenderer {
   Text viewCountText = 6;
   Endpoint navigationEndpoint = 8;
   Text shortBylineText = 10;
+  optional UpcomingEventData upcomingEventData = 12;
   repeated RendererWrapper badges = 13;
   repeated RendererWrapper ownerBadges = 15;
   bytes trackingParams = 17;

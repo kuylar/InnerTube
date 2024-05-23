@@ -624,7 +624,10 @@ public static partial class Utils
 					PublishedText = ReadRuns(renderer.VideoRenderer.PublishedTimeText),
 					ViewCountText = ReadRuns(renderer.VideoRenderer.ViewCountText),
 					Badges = renderer.VideoRenderer.Badges.Select(x => x.MetadataBadgeRenderer).ToArray(),
-					Description = ReadRuns(renderer.VideoRenderer.DetailedMetadataSnippets?.SnippetText)
+					Description = ReadRuns(renderer.VideoRenderer.DetailedMetadataSnippets?.SnippetText),
+					PremiereStartTime = renderer.VideoRenderer.UpcomingEventData != null
+						? DateTimeOffset.FromUnixTimeSeconds(renderer.VideoRenderer.UpcomingEventData.StartTime)
+						: null
 				}
 			},
 			RendererWrapper.RendererOneofCase.PlaylistVideoRenderer => new RendererContainer
@@ -682,7 +685,10 @@ public static partial class Utils
 					PublishedText = ReadRuns(renderer.CompactVideoRenderer.PublishedTimeText),
 					ViewCountText = ReadRuns(renderer.CompactVideoRenderer.ViewCountText),
 					Badges = renderer.CompactVideoRenderer.Badges.Select(x => x.MetadataBadgeRenderer).ToArray(),
-					Description = null
+					Description = null,
+					PremiereStartTime = renderer.CompactVideoRenderer.UpcomingEventData != null
+						? DateTimeOffset.FromUnixTimeSeconds(renderer.CompactVideoRenderer.UpcomingEventData.StartTime)
+						: null
 				}
 			},
 			RendererWrapper.RendererOneofCase.GridVideoRenderer => new RendererContainer
@@ -703,7 +709,10 @@ public static partial class Utils
 					PublishedText = ReadRuns(renderer.GridVideoRenderer.PublishedTimeText),
 					ViewCountText = ReadRuns(renderer.GridVideoRenderer.ViewCountText),
 					Badges = renderer.GridVideoRenderer.Badges.Select(x => x.MetadataBadgeRenderer).ToArray(),
-					Description = null
+					Description = null,
+					PremiereStartTime = renderer.GridVideoRenderer.UpcomingEventData != null
+						? DateTimeOffset.FromUnixTimeSeconds(renderer.GridVideoRenderer.UpcomingEventData.StartTime)
+						: null
 				}
 			},
 			RendererWrapper.RendererOneofCase.ChannelVideoPlayerRenderer => new RendererContainer
