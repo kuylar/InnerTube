@@ -13,7 +13,7 @@ public class VideoRendererData : IRendererData
 	public TimeSpan Duration { get; set; }
 	public string? PublishedText { get; set; }
 	public string? ViewCountText { get; set; }
-	public MetadataBadgeRenderer[] Badges { get; set; }
+	public Badge[] Badges { get; set; }
 	public string? Description { get; set; }
 	public DateTimeOffset? PremiereStartTime { get; set; }
 

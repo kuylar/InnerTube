@@ -634,7 +634,7 @@ public static partial class Utils
 					Duration = ParseDuration(renderer.VideoRenderer.LengthText?.SimpleText ?? "00:00"),
 					PublishedText = ReadRuns(renderer.VideoRenderer.PublishedTimeText),
 					ViewCountText = ReadRuns(renderer.VideoRenderer.ViewCountText),
-					Badges = renderer.VideoRenderer.Badges.Select(x => x.MetadataBadgeRenderer).ToArray(),
+					Badges = SimplifyBadges(renderer.VideoRenderer.Badges),
 					Description = ReadRuns(renderer.VideoRenderer.DetailedMetadataSnippets?.SnippetText),
 					PremiereStartTime = renderer.VideoRenderer.UpcomingEventData != null
 						? DateTimeOffset.FromUnixTimeSeconds(renderer.VideoRenderer.UpcomingEventData.StartTime)
@@ -695,7 +695,7 @@ public static partial class Utils
 					Duration = ParseDuration(renderer.CompactVideoRenderer.LengthText?.SimpleText ?? "00:00"),
 					PublishedText = ReadRuns(renderer.CompactVideoRenderer.PublishedTimeText),
 					ViewCountText = ReadRuns(renderer.CompactVideoRenderer.ViewCountText),
-					Badges = renderer.CompactVideoRenderer.Badges.Select(x => x.MetadataBadgeRenderer).ToArray(),
+					Badges = SimplifyBadges(renderer.CompactVideoRenderer.Badges),
 					Description = null,
 					PremiereStartTime = renderer.CompactVideoRenderer.UpcomingEventData != null
 						? DateTimeOffset.FromUnixTimeSeconds(renderer.CompactVideoRenderer.UpcomingEventData.StartTime)
@@ -719,7 +719,7 @@ public static partial class Utils
 						?.ThumbnailOverlayTimeStatusRenderer.Text)),
 					PublishedText = ReadRuns(renderer.GridVideoRenderer.PublishedTimeText),
 					ViewCountText = ReadRuns(renderer.GridVideoRenderer.ViewCountText),
-					Badges = renderer.GridVideoRenderer.Badges.Select(x => x.MetadataBadgeRenderer).ToArray(),
+					Badges = SimplifyBadges(renderer.GridVideoRenderer.Badges),
 					Description = null,
 					PremiereStartTime = renderer.GridVideoRenderer.UpcomingEventData != null
 						? DateTimeOffset.FromUnixTimeSeconds(renderer.GridVideoRenderer.UpcomingEventData.StartTime)
@@ -755,8 +755,7 @@ public static partial class Utils
 					Duration = ParseDuration(renderer.CompactMovieRenderer.LengthText?.SimpleText ?? "00:00"),
 					PublishedText = "",
 					ViewCountText = "",
-					Badges = renderer.CompactMovieRenderer.Badges.Select(x => x.MetadataBadgeRenderer)
-						.ToArray(),
+					Badges = SimplifyBadges(renderer.GridVideoRenderer.Badges),
 					Description = ReadRuns(renderer.CompactMovieRenderer.TopMetadataItems)
 				}
 			},
@@ -790,9 +789,7 @@ public static partial class Utils
 					Duration = ParseDuration(ReadRuns(renderer.PromotedVideoRenderer.LengthText)),
 					PublishedText = "",
 					ViewCountText = "",
-					Badges = [
-						renderer.PromotedVideoRenderer.AdBadge.MetadataBadgeRenderer
-					],
+					Badges = SimplifyBadges([renderer.PromotedVideoRenderer.AdBadge]),
 					Description = ReadRuns(renderer.PromotedVideoRenderer.Description)
 				}
 			},
@@ -809,7 +806,7 @@ public static partial class Utils
 					Avatar = renderer.ChannelRenderer.Thumbnail.Thumbnails_.ToArray(),
 					VideoCountText = ReadRuns(renderer.ChannelRenderer.VideoCountText),
 					SubscriberCountText = ReadRuns(renderer.ChannelRenderer.SubscriberCountText),
-					Badges = renderer.ChannelRenderer.OwnerBadges.Select(x => x.MetadataBadgeRenderer).ToArray()
+					Badges = SimplifyBadges(renderer.ChannelRenderer.OwnerBadges)
 				}
 			},
 			RendererWrapper.RendererOneofCase.GridChannelRenderer => new RendererContainer
@@ -1116,6 +1113,14 @@ public static partial class Utils
 			}
 		};
 	}
+
+	public static Badge[] SimplifyBadges(IEnumerable<RendererWrapper> renderers) =>
+		renderers.Where(x => x.RendererCase == RendererWrapper.RendererOneofCase.MetadataBadgeRenderer)
+			.Select(x => new Badge(x.MetadataBadgeRenderer))
+			.ToArray();
+
+	public static Badge[] SimplifyBadges(IEnumerable<MetadataBadgeRenderer> renderers) =>
+		renderers.Select(x => new Badge(x)).ToArray();
 
 	public static string? NullIfEmpty(this string input) => string.IsNullOrWhiteSpace(input) ? null : input;
 

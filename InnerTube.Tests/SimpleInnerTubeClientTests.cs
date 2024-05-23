@@ -246,11 +246,7 @@ public class SimpleInnerTubeClientTests
 			sb.AppendLine($"TVBanner: ({header.TvBanner.Length})" + string.Join("",
 				header.TvBanner.Select(x => $"\n- [{x.Width}x{x.Height}] {x.Url}")));
 			sb.AppendLine($"Badges: ({header.Badges.Length})\n- " + string.Join("",
-				header.Badges.Select(x =>
-					string.Join("\n  ", Utils.SerializeRenderer(new RendererWrapper
-					{
-						MetadataBadgeRenderer = x
-					}).Trim().Split("\n")))));
+				header.Badges.Select(x => string.Join("\n  ", x.ToString()).Trim().Split("\n"))));
 			sb.AppendLine("Links:");
 			sb.AppendLine("- First: " + (header.PrimaryLink ?? "<null>"));
 			sb.AppendLine("- More: " + (header.SecondaryLink ?? "<null>"));
@@ -310,11 +306,7 @@ public class SimpleInnerTubeClientTests
 			sb.AppendLine($"TVBanner: ({header.TvBanner.Length})" + string.Join("",
 				header.TvBanner.Select(x => $"\n- [{x.Width}x{x.Height}] {x.Url}")));
 			sb.AppendLine($"Badges: ({header.Badges.Length})\n- " + string.Join("",
-				header.Badges.Select(x =>
-					string.Join("\n  ", Utils.SerializeRenderer(new RendererWrapper
-					{
-						MetadataBadgeRenderer = x
-					}).Trim().Split("\n")))));
+				header.Badges.Select(x => string.Join("\n  ", x.ToString()).Trim().Split("\n"))));
 			sb.AppendLine("Links:");
 			sb.AppendLine("- First: " + (header.PrimaryLink ?? "<null>"));
 			sb.AppendLine("- More: " + (header.SecondaryLink ?? "<null>"));

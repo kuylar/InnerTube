@@ -15,7 +15,7 @@ public class Channel(
 	public string? Handle { get; } = handle;
 	public Thumbnail[]? Avatar { get; } = avatar;
 	public string? SubscribersText { get; } = subscribersText;
-	public MetadataBadgeRenderer[]? Badges { get; } = badges;
+	public Badge[]? Badges { get; } = badges != null ? Utils.SimplifyBadges(badges) : null;
 
 	public override string ToString()
 	{
