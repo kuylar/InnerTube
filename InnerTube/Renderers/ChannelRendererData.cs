@@ -11,6 +11,7 @@ public class ChannelRendererData : IRendererData
 	public Thumbnail[] Avatar { get; set; }
 	public string? VideoCountText { get; set; }
 	public string? SubscriberCountText { get; set; }
+	public MetadataBadgeRenderer[] Badges { get; set; }
 
 	public override string ToString()
 	{

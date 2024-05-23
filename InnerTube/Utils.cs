@@ -808,7 +808,8 @@ public static partial class Utils
 						.CanonicalBaseUrl),
 					Avatar = renderer.ChannelRenderer.Thumbnail.Thumbnails_.ToArray(),
 					VideoCountText = ReadRuns(renderer.ChannelRenderer.VideoCountText),
-					SubscriberCountText = ReadRuns(renderer.ChannelRenderer.SubscriberCountText)
+					SubscriberCountText = ReadRuns(renderer.ChannelRenderer.SubscriberCountText),
+					Badges = renderer.ChannelRenderer.OwnerBadges.Select(x => x.MetadataBadgeRenderer).ToArray()
 				}
 			},
 			RendererWrapper.RendererOneofCase.GridChannelRenderer => new RendererContainer
