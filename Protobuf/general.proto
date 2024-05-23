@@ -281,6 +281,7 @@ message RendererWrapper {
     CommentThreadRenderer commentThreadRenderer = 62285833;
     CommentRenderer commentRenderer = 62285947;
     PromotedVideoRenderer promotedVideoRenderer = 62887855;
+    RadioRenderer radioRenderer = 62951200;
     PlaylistMetadataRenderer playlistMetadataRenderer = 63173126;
     CommentRepliesRenderer commentRepliesRenderer = 65060753;
     ButtonViewModel buttonViewModel = 65153809;
@@ -346,6 +347,7 @@ message RendererWrapper {
     BackstagePostThreadRenderer backstagePostThreadRenderer = 164616223;
     LayoutProperties layoutProperties = 168772996;
     ReelShelfRenderer reelShelfRenderer = 187049775;
+    PostRenderer postRenderer = 197008154;
     FeedFilterChipBarRenderer feedFilterChipBarRenderer = 213380311;
     ThumbnailOverlayNowPlayingRenderer thumbnailOverlayNowPlayingRenderer = 228343999;
     PromotedSparklesWebRenderer promotedSparklesWebRenderer =239748402;
@@ -1006,6 +1008,21 @@ message PromotedVideoRenderer {
   RendererWrapper adBadge = 31;
 }
 
+message RadioRenderer {
+  string playlistId = 1;
+  Text title = 2;
+  repeated Thumbnails thumbnails = 3;
+  Text videoCountText = 4;
+  Endpoint navigationEndpoint = 5;
+  bytes trackingParams = 9;
+  repeated RendererWrapper videos = 10;
+  Text thumbnailText = 13;
+  Text longBylineText = 14;
+  RendererWrapper thumbnailOverlays = 17;
+  Text videoCountShortText = 18;
+  RendererWrapper thumbnailRenderer = 32;
+}
+
 message PlaylistMetadataRenderer {
   string title = 1;
   string description = 2;
@@ -1594,6 +1611,24 @@ message ReelShelfRenderer {
   Text title = 1;
   RendererWrapper button = 2;
   repeated RendererWrapper items = 3;
+}
+
+message PostRenderer {
+  string postId = 1;
+  Text authorText = 3;
+  Thumbnails authorThumbnail = 4;
+  Endpoint authorEndpoint = 5;
+  Text contentText = 6;
+  RendererWrapper backstageAttachment = 7;
+  Text publishedTimeText = 10;
+  Text voteCount = 11;
+  int32 voteStatus = 12;
+  RendererWrapper actionButtons = 14;
+  RendererWrapper actionMenu = 15;
+  bytes trackingParams = 18;
+  int32 surface = 21;
+  Endpoint navigationEndpoint = 23;
+  LoggingDirectives loggingDirectives = 999;
 }
 
 message FeedFilterChipBarRenderer {
