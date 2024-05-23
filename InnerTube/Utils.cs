@@ -619,7 +619,18 @@ public static partial class Utils
 					Title = ReadRuns(renderer.VideoRenderer.Title),
 					Thumbnails = renderer.VideoRenderer.Thumbnail.Thumbnails_.ToArray(),
 					Author = Channel.From(renderer.VideoRenderer.OwnerText,
-						renderer.VideoRenderer.OwnerBadges.Select(x => x.MetadataBadgeRenderer).ToArray()),
+						renderer.VideoRenderer.OwnerBadges.Select(x => x.MetadataBadgeRenderer).ToArray(),
+						renderer.VideoRenderer.ChannelThumbnailSupportedRenderers?.ChannelThumbnailWithLinkRenderer
+							?.Thumbnail != null
+							? new Thumbnails
+							{
+								Thumbnails_ =
+								{
+									renderer.VideoRenderer.ChannelThumbnailSupportedRenderers
+										?.ChannelThumbnailWithLinkRenderer?.Thumbnail
+								}
+							}
+							: null),
 					Duration = ParseDuration(renderer.VideoRenderer.LengthText?.SimpleText ?? "00:00"),
 					PublishedText = ReadRuns(renderer.VideoRenderer.PublishedTimeText),
 					ViewCountText = ReadRuns(renderer.VideoRenderer.ViewCountText),
